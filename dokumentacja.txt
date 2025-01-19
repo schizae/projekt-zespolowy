@@ -1,0 +1,162 @@
+# Dokumentacja Techniczna - Chatbot
+
+## 1. Wprowadzenie
+
+Niniejsza dokumentacja opisuje szczegóły techniczne projektu Chatbota opartego na Flasku oraz modelu GPT-Neo 1.3B. Projekt jest przeznaczony do obsługi prostych pytań użytkowników z wykorzystaniem predefiniowanych odpowiedzi oraz generowania dynamicznych odpowiedzi za pomocą modelu AI.
+
+---
+
+## 2. Technologie Użyte w Projekcie
+
+### Backend:
+
+- **Flask**: Lekki framework Python służący do budowy backendu aplikacji webowych.
+- **Transformers**: Biblioteka Hugging Face do obsługi modeli językowych, takich jak GPT-Neo 1.3B.
+
+### Frontend:
+
+- **HTML5**: Do struktury interfejsu użytkownika.
+- **CSS3**: Do stylizacji elementów frontendowych.
+- **JavaScript**: Do obsługi interakcji i dynamicznego przełączania zakładek.
+
+### Model AI:
+
+- **GPT-Neo 1.3B**: Model językowy zdolny do generowania tekstu na podstawie podanych pytań i kontekstu.
+
+---
+
+## 3. Opis Działania
+
+### 3.1 Ogólna Architektura
+
+1. **Użytkownik wprowadza pytanie** w interfejsie webowym (frontend).
+2. Frontend wysyła zapytanie do backendu Flask poprzez endpoint `/get_response`.
+3. Backend:
+   - Sprawdza, czy pytanie pasuje do predefiniowanych odpowiedzi.
+   - Jeśli pytanie nie jest predefiniowane, generuje odpowiedź za pomocą modelu GPT-Neo.
+4. Odpowiedź jest zwracana na frontend i wyświetlana użytkownikowi w oknie czatu.
+
+### 3.2 Logika Odpowiedzi
+
+- **Predefiniowane odpowiedzi:** Dla popularnych pytań (np. „Where is Barcelona?”) bot natychmiast zwraca odpowiedź z listy.
+- **Generowane odpowiedzi:** Dla bardziej złożonych zapytań, które nie znajdują się w predefiniowanej liście, model GPT-Neo generuje dynamiczną odpowiedź.
+- **Walidacja odpowiedzi:** Funkcja `validate_response` filtruje odpowiedzi, aby usunąć zbędne fragmenty lub komunikaty niezgodne z oczekiwaniami.
+
+---
+
+## 4. Instalacja i Uruchomienie na Nowych Urządzeniach
+
+### 4.1 Wymagania Systemowe
+
+- Python 3.8 lub nowszy.
+- Zainstalowane środowisko wirtualne Python (opcjonalne, ale zalecane).
+- Stabilne połączenie z Internetem (do pobrania modelu GPT-Neo).
+
+### 4.2 Instalacja
+
+1. **Pobranie kodu:**
+
+   - Sklonuj repozytorium lub pobierz pliki projektu.
+
+   ```bash
+   git clone <link_do_repozytorium>
+   cd <nazwa_folderu>
+   ```
+
+2. **Utworzenie wirtualnego środowiska:**
+
+   ```bash
+   python -m venv venv
+   source venv/bin/activate   # Dla systemów Linux/macOS
+   venv\Scripts\activate    # Dla Windows
+   ```
+
+3. **Zainstalowanie zależności:**
+
+   ```bash
+   pip install -r requirements.txt
+   ```
+
+4. **Pobranie modelu GPT-Neo:**
+   Model zostanie automatycznie pobrany podczas pierwszego uruchomienia aplikacji.
+
+### 4.3 Uruchomienie
+
+1. W folderze projektu uruchom aplikację Flask:
+   ```bash
+   python app.py
+   ```
+2. Otwórz przeglądarkę i przejdź pod adres:
+   ```
+   http://127.0.0.1:5000
+   ```
+
+---
+
+## 5. Struktura Katalogów
+
+```
+project/
+│
+├── app.py                 # Główny plik aplikacji
+├── requirements.txt       # Lista zależności Python
+├── templates/             # Folder zawierający pliki HTML
+│   └── index.html
+├── static/                # Folder zawierający zasoby statyczne (CSS, JS)
+│   ├── css/
+│   │   └── style.css
+│   └── js/
+│       └── script.js
+└── README.md              # Dokumentacja projektu (opcjonalne)
+```
+
+---
+
+## 6. API
+
+### 6.1 Endpoint: `/get_response`
+
+- **Metoda:** `POST`
+- **Opis:** Przetwarza wiadomości użytkownika i zwraca odpowiedź bota.
+- **Parametry wejściowe:**
+  - `message` (string): Wiadomość użytkownika.
+- **Przykładowe zapytanie:**
+  ```json
+  {
+    "message": "Where is Barcelona?"
+  }
+  ```
+- **Przykładowa odpowiedź:**
+  ```json
+  {
+    "response": "Barcelona is in Spain."
+  }
+  ```
+
+---
+
+## 7. Uwagi Dodatkowe
+
+### Możliwe Ulepszenia
+
+- **Rozbudowa predefiniowanych odpowiedzi:** Dodanie kolejnych pytań i odpowiedzi dla zwiększenia użyteczności.
+- **Zapisywanie historii rozmowy:** Implementacja zapisywania historii użytkownika dla kontekstowych odpowiedzi.
+- **Integracja z bazą danych:** Przechowywanie danych o użytkownikach i pytaniach.
+
+### Rozwiązywanie Problemów
+
+- Jeśli aplikacja nie działa:
+  - Sprawdź, czy wszystkie zależności zostały poprawnie zainstalowane.
+  - Upewnij się, że masz stabilne połączenie z Internetem.
+- Jeśli model GPT-Neo zwraca błędy:
+  - Upewnij się, że masz wystarczającą ilość pamięci RAM.
+  - Sprawdź, czy model został poprawnie pobrany.
+
+---
+
+## 8. Autorzy
+
+- **Imię i nazwisko:** Norbert Chojnacki
+- **Kontakt:** kubamentoz\@gmail.com
+- **Rola:** Programista backend/frontend, odpowiedzialny za integrację AI i obsługę interfejsu użytkownika.
+
