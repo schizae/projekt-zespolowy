@@ -15,6 +15,7 @@
 					>Home</a
 				>
 				<a href="#chat" class="nav-link" onclick="switchTab('chat')">Chat</a>
+				<a href="#history" class="nav-link" onclick="switchTab('history')">History</a>
 				<a href="#about" class="nav-link" onclick="switchTab('about')">About</a>
 			</div>
 		</div>
@@ -41,7 +42,18 @@
 				</div>
 			</div>
 		</section>
-
+		<!-- History Section -->
+	<section id="history" class="tab">
+		<div class="history-container">
+			<h2>Message History</h2>
+			<div id="history-content" class="history-content">
+				<!-- Message history will be displayed here -->
+			</div>
+			<button onclick="clearHistory()">Clear History</button>
+			<p>If there is no history, start chatting to see it here.</p>
+		</div>
+	</section>
+		<!-- About Section -->
 		<section id="about" class="tab">
 			<div class="about-container">
 				<h2>About ChatBot</h2>
