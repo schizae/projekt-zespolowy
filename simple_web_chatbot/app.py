@@ -1,63 +1,97 @@
 from flask import Flask, render_template, request, jsonify
-from transformers import pipeline
+import openai
+import requests
+from urllib.parse import quote
+from langdetect import detect
+
+# Konfiguracja OpenAI API
+openai.api_key = "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"
 
 app = Flask(__name__, static_folder="static", template_folder="templates")
 
-# Ładowanie modelu GPT-Neo 1.3B
-chat_model = pipeline("text-generation", model="EleutherAI/gpt-neo-1.3B")
 
-def validate_response(response):
+def get_weather(city, language="en"):
     """
-    Prosty filtr do walidacji odpowiedzi.
+    Pobiera dane pogodowe dla danego miasta za pomocą API OpenWeatherMap.
     """
-    response = response.split("A:")[-1].strip()  # Zachowaj tylko ostatnią część odpowiedzi
-    if len(response.split()) < 3:  # Jeśli odpowiedź jest zbyt krótka
-        return "Przepraszam, nie zrozumiałem Twojego pytania. Czy możesz je powtórzyć?"
-    return response
+    api_key = "0e784ad302e0fcf97a26292b99971040"  # Twój klucz API OpenWeatherMap
+    city_encoded = quote(city)  # Kodowanie polskich znaków
+    url = f"http://api.openweathermap.org/data/2.5/weather?q={city_encoded}&appid={api_key}&units=metric&lang={language}"
+    try:
+        response = requests.get(url)
+        data = response.json()
+
+        if response.status_code == 200:
+            temp = data['main']['temp']
+            description = data['weather'][0]['description']
+            humidity = data['main']['humidity']
+            wind_speed = data['wind']['speed']
+
+            if language == "pl":
+                return f"Obecna pogoda w {city.title()} to {temp}°C z {description}. Wilgotność: {humidity}%, Prędkość wiatru: {wind_speed} m/s."
+            else:
+                return f"The current weather in {city.title()} is {temp}°C with {description}. Humidity: {humidity}%, Wind Speed: {wind_speed} m/s."
+        elif response.status_code == 404:
+            if language == "pl":
+                return f"Miasto '{city}' nie zostało znalezione. Proszę sprawdzić nazwę i spróbować ponownie."
+            else:
+                return f"City '{city}' not found. Please check the name and try again."
+        else:
+            if language == "pl":
+                return "Nie udało się pobrać danych o pogodzie. Spróbuj ponownie później."
+            else:
+                return "I couldn't fetch the weather data at the moment. Please try again later."
+    except Exception as e:
+        return f"Error while fetching weather data: {e}"
+
 
 def chatbot_response(message):
     """
-    Generowanie odpowiedzi z logiką dla podstawowych pytań i ustalonym kontekstem.
+    Generowanie odpowiedzi z OpenAI ChatGPT oraz obsługa pogody i specjalnych przycisków.
     """
     try:
-        # Proste odpowiedzi na popularne pytania
-        predefined_answers = {
-            "where is barcelona": "Barcelona is in Spain.",
-            "where is warsaw": "Warsaw is the capital of Poland.",
-            "how much is 100 usd + 15 usd": "100 USD + 15 USD = 115 USD.",
-            "where can i find fish": "You can find fish in the fish store or near water bodies.",
-            "what is africa": "Africa is the second-largest continent in the world, known for its diverse cultures and wildlife.",
-            "where i can buy jacket": "You can buy a jacket in clothing stores, online shops, or shopping malls.",
-            "where is tokyo": "Tokyo is in Japan.",
-            "where is manchester": "Manchester is in England, United Kingdom.",
-            "where i can buy new tv": "You can buy a new TV in electronics stores, online marketplaces, or retail stores."
-        }
+        # Rozpoznanie języka wiadomości
+        language = detect(message)
 
-        # Sprawdzanie predefiniowanych odpowiedzi
-        message_lower = message.lower().strip()
-        if message_lower in predefined_answers:
-            return predefined_answers[message_lower]
+        # Obsługa specjalnych poleceń
+        if message.lower() == "Opowiedz żart":
+            system_message = "You are a helpful assistant. Tell a random funny joke."
+        elif message.lower() == "opowiedz mi ciekawostkę historyczną":
+            system_message = "You are a knowledgeable assistant. Share an interesting historical fact."
+        elif message.lower() == "opowiedz mi ciekawostkę dla Geeków":
+            system_message = "You are a technical expert. Provide an interesting technical fact."
+        elif "weather in" in message.lower() or "pogoda w" in message.lower():
+            if "weather in" in message.lower():
+                city = message.lower().split("weather in")[-1].strip()
+            elif "pogoda w" in message.lower():
+                city = message.lower().split("pogoda w")[-1].strip()
+            else:
+                city = None
 
-        # Ustalony kontekst dla modelu
-        prompt = (
-            "You are a helpful assistant. Answer the following question accurately and concisely:\n"
-            f"Q: {message}\nA:"
+            if not city:
+                if language == "pl":
+                    return "Podaj nazwę miasta, aby uzyskać informacje o pogodzie."
+                else:
+                    return "Please provide a city name to get the weather."
+
+            return get_weather(city, language)
+        else:
+            # Domyślny kontekst
+            system_message = "You are a helpful assistant."
+
+        # Wywołanie API OpenAI
+        response = openai.ChatCompletion.create(
+            model="gpt-4",
+            messages=[
+                {"role": "system", "content": system_message},
+                {"role": "user", "content": message}
+            ]
         )
+        return response['choices'][0]['message']['content'].strip()
 
-        # Generowanie odpowiedzi przez model GPT-Neo
-        response = chat_model(
-            prompt,
-            max_length=50,  # Ogranicz długość odpowiedzi
-            num_return_sequences=1,  # Jedna odpowiedź
-            do_sample=True,  # Losowe generowanie (próbkowanie)
-            temperature=0.5,  # Niższa temperatura -> bardziej przewidywalne odpowiedzi
-            top_k=40,  # Rozważaj tylko 40 najbardziej prawdopodobnych tokenów
-            top_p=0.8  # Użyj nucleus sampling (próg prawdopodobieństwa)
-        )
-        generated_text = response[0]['generated_text']
-        return validate_response(generated_text)
     except Exception as e:
-        return f"Błąd podczas komunikacji z modelem: {e}"
+        return f"Error during communication with the model: {e}"
+
 
 @app.route("/")
 def index():
@@ -65,6 +99,7 @@ def index():
     Strona główna - serwuje plik index.html.
     """
     return render_template("index.html")
+
 
 @app.route("/get_response", methods=["POST"])
 def get_response():
@@ -74,6 +109,7 @@ def get_response():
     user_message = request.json.get("message")
     response = chatbot_response(user_message)
     return jsonify({"response": response})
+
 
 if __name__ == "__main__":
     app.run(debug=True)

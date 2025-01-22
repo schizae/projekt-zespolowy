@@ -8,6 +8,7 @@
 		<script src="/static/js/script.js" defer></script>
 	</head>
 	<body>
+		<!-- Navbar -->
 		<div class="navbar">
 			<div class="logo">ChatBot</div>
 			<div class="nav-links">
@@ -15,7 +16,9 @@
 					>Home</a
 				>
 				<a href="#chat" class="nav-link" onclick="switchTab('chat')">Chat</a>
-				<a href="#history" class="nav-link" onclick="switchTab('history')">History</a>
+				<a href="#history" class="nav-link" onclick="switchTab('history')"
+					>History</a
+				>
 				<a href="#about" class="nav-link" onclick="switchTab('about')">About</a>
 			</div>
 		</div>
@@ -24,11 +27,12 @@
 		<section id="home" class="tab active">
 			<div class="landing">
 				<h1>Welcome to ChatBot</h1>
-				<p>Your AI assistant for answering questions.</p>
+				<p>Your AI assistant for answering questions and more.</p>
 				<button onclick="switchTab('chat')">Start Chatting</button>
 			</div>
 		</section>
 
+		<!-- Chat Section -->
 		<section id="chat" class="tab">
 			<div class="chat-container">
 				<div id="chat-window" class="chat-window"></div>
@@ -41,25 +45,51 @@
 					<button onclick="sendMessage()">Send</button>
 				</div>
 			</div>
-		</section>
-		<!-- History Section -->
-	<section id="history" class="tab">
-		<div class="history-container">
-			<h2>Message History</h2>
-			<div id="history-content" class="history-content">
-				<!-- Message history will be displayed here -->
+			<div class="button-container">
+				<button
+					class="custom-btn"
+					onclick="sendPresetMessage('Opowiedz mi żart')"
+				>
+					Opowiedz kawał
+				</button>
+				<button
+					class="custom-btn"
+					onclick="sendPresetMessage('Opowiedz mi ciekawostkę Historyczną')"
+				>
+					Historyczna ciekawostka
+				</button>
+				<button
+					class="custom-btn"
+					onclick="sendPresetMessage('Opowiedz ciekawostkę technologiczną')"
+				>
+					Techniczna ciekawostka
+				</button>
 			</div>
-			<button onclick="clearHistory()">Clear History</button>
-			<p>If there is no history, start chatting to see it here.</p>
-		</div>
-	</section>
+		</section>
+
+		<!-- History Section -->
+		<section id="history" class="tab">
+			<div class="history-container">
+				<h2>Message History</h2>
+				<div id="history-content" class="history-content">
+					<!-- Message history will be displayed here -->
+				</div>
+				<button onclick="clearHistory()">Clear History</button>
+				<p>If there is no history, start chatting to see it here.</p>
+			</div>
+		</section>
+
 		<!-- About Section -->
 		<section id="about" class="tab">
 			<div class="about-container">
 				<h2>About ChatBot</h2>
 				<p>
-					Chatbot wykorzystuje stary model generatywnej sztucznej inteligencji
-					gpt-neo-1.3B, którego Api jest darmowe na Hugging Face
+					Chatbot utilizes a generative AI model to answer questions, share
+					interesting facts, and more.
+				</p>
+				<p>
+					It integrates with OpenAI's GPT-4 API and supports various
+					functionalities, including weather updates and jokes.
 				</p>
 			</div>
 		</section>
