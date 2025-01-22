@@ -14,7 +14,26 @@ function switchTab(tabId) {
 	if (activeLink) {
 		activeLink.classList.add('active');
 	}
+	if (tabId === 'history') {
+		showHistory();
+	}
 }
+
+
+
+let messageHistory = [];
+
+		function addToMessageHistory(text, type) {
+			messageHistory.push({ text, type });
+			localStorage.setItem('messageHistory', JSON.stringify(messageHistory));
+		}
+
+		function loadMessageHistoryFromStorage() {
+			const storedHistory = localStorage.getItem('messageHistory');
+			if (storedHistory) {
+				messageHistory = JSON.parse(storedHistory);
+			}
+		}
 
 // Funkcja wysyłania wiadomości
 function sendMessage() {
@@ -22,11 +41,14 @@ function sendMessage() {
 	const chatWindow = document.getElementById('chat-window');
 
 	if (userInput.value.trim() !== '') {
+		
+		const userMessage = `You: ${userInput.value}`;
+		addToMessageHistory(userMessage, 'user');
 		// Dodanie wiadomości użytkownika do okna czatu
-		const userMessage = document.createElement('div');
-		userMessage.textContent = `You: ${userInput.value}`;
-		userMessage.classList.add('user-message');
-		chatWindow.appendChild(userMessage);
+		const userMessageElement = document.createElement('div');
+		userMessageElement.textContent = userMessage;
+		userMessageElement.classList.add('user-message');
+		chatWindow.appendChild(userMessageElement);
 
 		// Wysłanie wiadomości do backendu Flask
 		fetch('/get_response', {
@@ -38,6 +60,7 @@ function sendMessage() {
 		})
 			.then((response) => response.json())
 			.then((data) => {
+				
 				// Dodanie odpowiedzi bota do okna czatu
 				const botMessage = document.createElement('div');
 				botMessage.textContent = data.response;
@@ -51,5 +74,29 @@ function sendMessage() {
 
 		// Wyczyść pole wejściowe
 		userInput.value = '';
-	}
+	}	
 }
+
+
+function showHistory() {
+	const historyContent = document.getElementById('history-content');
+	historyContent.innerHTML = ''; // 
+
+	messageHistory.forEach((message) => {
+		const messageElement = document.createElement('div');
+		messageElement.textContent = message.text;
+		messageElement.classList.add(message.type === 'user' ? 'user-message' : 'bot-message');
+		historyContent.appendChild(messageElement);
+	});
+}
+
+function clearHistory() {
+    messageHistory = [];
+    localStorage.removeItem('messageHistory');
+    showHistory();
+}
+
+// ładowanie historii localStorage
+window.addEventListener('load', () => {
+	loadMessageHistoryFromStorage();
+});
