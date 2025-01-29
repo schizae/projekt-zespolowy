@@ -1,38 +1,55 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="pl">
 	<head>
 		<meta charset="UTF-8" />
 		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
-		<title>Projekt Grupowy</title>
+		<title>Neon Chat - AI Assistant</title>
 		<link rel="stylesheet" href="/static/css/style.css" />
+		<link
+			href="https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css"
+			rel="stylesheet"
+		/>
 		<script src="/static/js/script.js" defer></script>
 	</head>
 	<body>
 		<!-- Navbar -->
-		<div class="navbar">
-			<div class="logo">ChatBot</div>
-			<div class="nav-links">
-				<a href="#home" class="nav-link active" onclick="switchTab('home')"
-					>Home</a
-				>
-				<a href="#chat" class="nav-link" onclick="switchTab('chat')">Chat</a>
-				<a href="#history" class="nav-link" onclick="switchTab('history')"
-					>History</a
-				>
-				<a href="#about" class="nav-link" onclick="switchTab('about')">About</a>
+		<nav class="neon-navbar">
+			<div class="nav-brand">
+				<i class="bx bxs-bot"></i>
+				<span>NeonChat</span>
 			</div>
-		</div>
+			<div class="nav-links">
+				<a href="#home" class="nav-link active" onclick="switchTab('home')">
+					<i class="bx bxs-home"></i>
+					<span>Home</span>
+				</a>
+				<a href="#chat" class="nav-link" onclick="switchTab('chat')">
+					<i class="bx bx-conversation"></i>
+					<span>Chat</span>
+				</a>
+				<a href="#history" class="nav-link" onclick="switchTab('history')">
+					<i class="bx bx-history"></i>
+					<span>Historia</span>
+				</a>
+				<a href="#about" class="nav-link" onclick="switchTab('about')">
+					<i class="bx bx-info-circle"></i>
+					<span>O nas</span>
+				</a>
+			</div>
+		</nav>
 
-		<!-- Landing Page -->
+		<!-- Sekcje -->
 		<section id="home" class="tab active">
-			<div class="landing">
-				<h1>Welcome to ChatBot</h1>
-				<p>Your AI assistant for answering questions and more.</p>
-				<button onclick="switchTab('chat')">Start Chatting</button>
+			<div class="neon-hero">
+				<h1 class="neon-title">Witaj w NeonChat</h1>
+				<p class="neon-subtitle">Twoja nowoczesna platforma komunikacji z AI</p>
+				<button class="neon-btn" onclick="switchTab('chat')">
+					Rozpocznij rozmowę
+					<i class="bx bx-chevron-right"></i>
+				</button>
 			</div>
 		</section>
 
-		<!-- Chat Section -->
 		<section id="chat" class="tab">
 			<div class="chat-container">
 				<div id="chat-window" class="chat-window"></div>
@@ -40,57 +57,69 @@
 					<input
 						type="text"
 						id="user-input"
-						placeholder="Type your message..."
+						placeholder="Wpisz swoją wiadomość..."
+						class="neon-input"
 					/>
-					<button onclick="sendMessage()">Send</button>
+					<button onclick="sendMessage()" class="neon-btn">
+						<i class="bx bx-send"></i>
+					</button>
 				</div>
-			</div>
-			<div class="button-container">
-				<button
-					class="custom-btn"
-					onclick="sendPresetMessage('Opowiedz mi żart')"
-				>
-					Opowiedz kawał
-				</button>
-				<button
-					class="custom-btn"
-					onclick="sendPresetMessage('Opowiedz mi ciekawostkę Historyczną')"
-				>
-					Historyczna ciekawostka
-				</button>
-				<button
-					class="custom-btn"
-					onclick="sendPresetMessage('Opowiedz ciekawostkę technologiczną')"
-				>
-					Techniczna ciekawostka
-				</button>
+				<div class="button-container">
+					<button
+						class="neon-btn preset"
+						onclick="sendPresetMessage('Opowiedz mi żart')"
+					>
+						<i class="bx bx-laugh"></i>
+						Kawał
+					</button>
+					<button
+						class="neon-btn preset"
+						onclick="sendPresetMessage('Opowiedz mi ciekawostkę Historyczną')"
+					>
+						<i class="bx bx-history"></i>
+						Historia
+					</button>
+					<button
+						class="neon-btn preset"
+						onclick="sendPresetMessage('Opowiedz ciekawostkę technologiczną')"
+					>
+						<i class="bx bx-chip"></i>
+						Technologia
+					</button>
+				</div>
 			</div>
 		</section>
 
-		<!-- History Section -->
 		<section id="history" class="tab">
 			<div class="history-container">
-				<h2>Message History</h2>
-				<div id="history-content" class="history-content">
-					<!-- Message history will be displayed here -->
-				</div>
-				<button onclick="clearHistory()">Clear History</button>
-				<p>If there is no history, start chatting to see it here.</p>
+				<h2 class="neon-heading">Historia Czatu</h2>
+				<div id="history-content" class="history-content"></div>
+				<button onclick="clearHistory()" class="neon-btn danger">
+					<i class="bx bx-trash"></i>
+					Wyczyść historię
+				</button>
 			</div>
 		</section>
 
-		<!-- About Section -->
 		<section id="about" class="tab">
 			<div class="about-container">
-				<h2>About ChatBot</h2>
-				<p>
-					Chatbot utilizes a generative AI model to answer questions, share
-					interesting facts, and more.
-				</p>
-				<p>
-					It integrates with OpenAI's GPT-4 API and supports various
-					functionalities, including weather updates and jokes.
-				</p>
+				<h2 class="neon-heading">O Projekcie</h2>
+				<div class="neon-card">
+					<p>
+						Chatbot wykorzystujący zaawansowane algorytmy AI do generowania
+						odpowiedzi.
+					</p>
+					<div class="tech-stack">
+						<div class="tech-item">
+							<i class="bx bx-code-alt"></i>
+							<span>GPT-4 Integration</span>
+						</div>
+						<div class="tech-item">
+							<i class="bx bx-cloud"></i>
+							<span>Cloud Processing</span>
+						</div>
+					</div>
+				</div>
 			</div>
 		</section>
 	</body>

@@ -1,133 +1,128 @@
 // Przełączanie zakładek
 function switchTab(tabId) {
-	// Znajdź wszystkie zakładki i usuń klasę "active"
-	const tabs = document.querySelectorAll('.tab');
-	const links = document.querySelectorAll('.nav-link');
-	tabs.forEach((tab) => tab.classList.remove('active'));
-	links.forEach((link) => link.classList.remove('active'));
+	// Ukryj wszystkie zakładki
+	document.querySelectorAll('.tab').forEach((tab) => {
+		tab.classList.remove('active');
+	});
 
-	// Ustaw wybraną zakładkę jako aktywną
-	document.getElementById(tabId).classList.add('active');
+	// Usuń aktywną klasę z linków
+	document.querySelectorAll('.nav-link').forEach((link) => {
+		link.classList.remove('active');
+	});
 
-	// Oznacz odpowiedni link nawigacyjny jako aktywny
+	// Pokaż wybraną zakładkę
+	const activeTab = document.getElementById(tabId);
+	activeTab.classList.add('active');
+
+	// Oznacz aktywny link
 	const activeLink = document.querySelector(`[href="#${tabId}"]`);
 	if (activeLink) {
 		activeLink.classList.add('active');
 	}
 
-	// Wyświetl historię, jeśli wybrano zakładkę "history"
-	if (tabId === 'history') {
-		showHistory();
-	}
+	// Obsługa historii
+	if (tabId === 'history') showHistory();
 }
 
-let messageHistory = [];
+// Obsługa czatu
+let messageHistory = JSON.parse(localStorage.getItem('messageHistory')) || [];
 
-// Dodanie wiadomości do historii
-function addToMessageHistory(text, type) {
-	messageHistory.push({ text, type });
-	localStorage.setItem('messageHistory', JSON.stringify(messageHistory));
+function appendMessage(text, type) {
+	const chatWindow = document.getElementById('chat-window');
+	const messageDiv = document.createElement('div');
+
+	messageDiv.className = `${type}-message`;
+	messageDiv.innerHTML = `
+        <div class="message-content">${text}</div>
+        <div class="message-time">${new Date().toLocaleTimeString()}</div>
+    `;
+
+	chatWindow.appendChild(messageDiv);
+	chatWindow.scrollTop = chatWindow.scrollHeight;
 }
 
-// Ładowanie historii wiadomości z localStorage
-function loadMessageHistoryFromStorage() {
-	const storedHistory = localStorage.getItem('messageHistory');
-	if (storedHistory) {
-		messageHistory = JSON.parse(storedHistory);
-	}
-}
-
-// Funkcja wysyłania predefiniowanych wiadomości
-function sendPresetMessage(message) {
-	const userInput = document.getElementById('user-input');
-	userInput.value = message; // Ustaw wiadomość w polu tekstowym
-	sendMessage(); // Wyślij wiadomość do bota
-}
-
-// Funkcja wysyłania wiadomości
-function sendMessage() {
+async function sendMessage() {
 	const userInput = document.getElementById('user-input');
 	const chatWindow = document.getElementById('chat-window');
 
-	if (userInput.value.trim() !== '') {
-		const userMessage = userInput.value;
+	if (userInput.value.trim()) {
+		const message = userInput.value.trim();
 
-		// Dodanie wiadomości użytkownika do historii i czatu
-		addToMessageHistory(userMessage, 'user');
-		appendMessageToChat(userMessage, 'user');
+		// Dodaj wiadomość użytkownika
+		appendMessage(message, 'user');
 
-		// Wysłanie wiadomości do backendu Flask
-		fetch('/get_response', {
-			method: 'POST',
-			headers: {
-				'Content-Type': 'application/json',
-			},
-			body: JSON.stringify({ message: userInput.value }),
-		})
-			.then((response) => response.json())
-			.then((data) => {
-				const botMessage = data.response;
-
-				// Dodanie odpowiedzi bota do historii i czatu
-				addToMessageHistory(botMessage, 'bot');
-				appendMessageToChat(botMessage, 'bot');
-			})
-			.catch((error) => {
-				console.error('Error:', error);
-				const errorMessage =
-					'Przepraszam, wystąpił błąd. Spróbuj ponownie później.';
-				addToMessageHistory(errorMessage, 'bot');
-				appendMessageToChat(errorMessage, 'bot');
+		try {
+			const response = await fetch('/get_response', {
+				method: 'POST',
+				headers: {
+					'Content-Type': 'application/json',
+				},
+				body: JSON.stringify({ message: message }),
 			});
 
-		// Wyczyść pole tekstowe
+			if (!response.ok) throw new Error('Błąd sieci');
+
+			const data = await response.json();
+			appendMessage(data.response, 'bot');
+		} catch (error) {
+			appendMessage(`Błąd połączenia: ${error.message}`, 'bot');
+		}
+
 		userInput.value = '';
 	}
 }
 
-// Funkcja dodająca wiadomość do okna czatu
-function appendMessageToChat(message, type) {
+function appendMessage(message, type) {
 	const chatWindow = document.getElementById('chat-window');
-	const messageElement = document.createElement('div');
-	messageElement.textContent = message;
-	messageElement.classList.add(
-		type === 'user' ? 'user-message' : 'bot-message'
-	);
-	chatWindow.appendChild(messageElement);
+	const messageDiv = document.createElement('div');
 
-	// Automatyczne przewijanie do dołu
+	messageDiv.className = `${type}-message`;
+	messageDiv.innerHTML = `
+        <div class="message-content">${message}</div>
+        <div class="message-time">${new Date().toLocaleTimeString()}</div>
+    `;
+
+	chatWindow.appendChild(messageDiv);
 	chatWindow.scrollTop = chatWindow.scrollHeight;
 }
 
-// Funkcja wyświetlania historii wiadomości
-function showHistory() {
-	const historyContent = document.getElementById('history-content');
-	historyContent.innerHTML = ''; // Wyczyść zawartość
-
-	messageHistory.forEach((message) => {
-		const messageElement = document.createElement('div');
-		messageElement.textContent = message.text;
-		messageElement.classList.add(
-			message.type === 'user' ? 'user-message' : 'bot-message'
-		);
-		historyContent.appendChild(messageElement);
-	});
+// Funkcja pomocnicza do symulacji odpowiedzi
+async function getBotResponse(message) {
+	// Tutaj integracja z prawdziwym API
+	await new Promise((resolve) => setTimeout(resolve, 1000));
+	return `Odpowiedź na: "${message}"`;
 }
 
-// Funkcja czyszczenia historii
+// Predefiniowane wiadomości
+function sendPresetMessage(message) {
+	const input = document.getElementById('user-input');
+	input.value = message;
+	sendMessage();
+}
+
+// Historia czatu
+function showHistory() {
+	const historyContent = document.getElementById('history-content');
+	historyContent.innerHTML = messageHistory
+		.map((msg) => `<div class="${msg.type}-message">${msg.content}</div>`)
+		.join('');
+}
+
 function clearHistory() {
 	messageHistory = [];
 	localStorage.removeItem('messageHistory');
 	showHistory();
 }
 
-// Ładowanie historii wiadomości przy starcie aplikacji
-window.addEventListener('load', () => {
-	loadMessageHistoryFromStorage();
-});
+// Inicjalizacja
+document.addEventListener('DOMContentLoaded', () => {
+	// Obsługa domyślnej zakładki
+	const hash = window.location.hash.substring(1);
+	if (hash) switchTab(hash);
+	else switchTab('home');
 
-// Automatyczne przewijanie do aktywnej zakładki
-window.addEventListener('hashchange', () => {
-	const hash = window.location.hash.slice(1); // Usuń "#" z początku
-	switchTab(hash);
+	// Obsługa przycisku Enter
+	document.getElementById('user-input').addEventListener('keypress', (e) => {
+		if (e.key === 'Enter') sendMessage();
+	});
 });

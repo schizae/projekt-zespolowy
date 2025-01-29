@@ -1,115 +1,102 @@
 from flask import Flask, render_template, request, jsonify
+from flask_cors import CORS
 import openai
 import requests
+import os
+import re
+from dotenv import load_dotenv
 from urllib.parse import quote
-from langdetect import detect
 
-# Konfiguracja OpenAI API
-openai.api_key = "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"
+load_dotenv()
 
 app = Flask(__name__, static_folder="static", template_folder="templates")
+CORS(app)
 
+# Konfiguracja kluczy
+openai.api_key = os.getenv("OPENAI_API_KEY")
+WEATHER_API_KEY = os.getenv("WEATHER_API_KEY")
 
-def get_weather(city, language="en"):
-    """
-    Pobiera dane pogodowe dla danego miasta za pomocą API OpenWeatherMap.
-    """
-    api_key = "0e784ad302e0fcf97a26292b99971040"  # Twój klucz API OpenWeatherMap
-    city_encoded = quote(city)  # Kodowanie polskich znaków
-    url = f"http://api.openweathermap.org/data/2.5/weather?q={city_encoded}&appid={api_key}&units=metric&lang={language}"
+def get_weather(city: str) -> str:
+    """Pobiera i formatuje dane pogodowe z OpenWeatherMap po polsku"""
     try:
+        city_encoded = quote(city)
+        url = f"http://api.openweathermap.org/data/2.5/weather?q={city_encoded}&appid={WEATHER_API_KEY}&units=metric&lang=pl"
         response = requests.get(url)
+        response.raise_for_status()
+        
         data = response.json()
-
-        if response.status_code == 200:
-            temp = data['main']['temp']
-            description = data['weather'][0]['description']
-            humidity = data['main']['humidity']
-            wind_speed = data['wind']['speed']
-
-            if language == "pl":
-                return f"Obecna pogoda w {city.title()} to {temp}°C z {description}. Wilgotność: {humidity}%, Prędkość wiatru: {wind_speed} m/s."
-            else:
-                return f"The current weather in {city.title()} is {temp}°C with {description}. Humidity: {humidity}%, Wind Speed: {wind_speed} m/s."
-        elif response.status_code == 404:
-            if language == "pl":
-                return f"Miasto '{city}' nie zostało znalezione. Proszę sprawdzić nazwę i spróbować ponownie."
-            else:
-                return f"City '{city}' not found. Please check the name and try again."
-        else:
-            if language == "pl":
-                return "Nie udało się pobrać danych o pogodzie. Spróbuj ponownie później."
-            else:
-                return "I couldn't fetch the weather data at the moment. Please try again later."
+        weather_info = {
+            'miasto': data['name'],
+            'temp': data['main']['temp'],
+            'opis': data['weather'][0]['description'].capitalize(),
+            'wilgotnosc': data['main']['humidity'],
+            'wiatr': data['wind']['speed']
+        }
+        
+        return (
+            f"Pogoda w {weather_info['miasto']}:\n"
+            f"- Temperatura: {weather_info['temp']}°C\n"
+            f"- Warunki: {weather_info['opis']}\n"
+            f"- Wilgotność: {weather_info['wilgotnosc']}%\n"
+            f"- Prędkość wiatru: {weather_info['wiatr']} m/s"
+        )
+        
+    except requests.exceptions.HTTPError:
+        return f"Nie znaleziono pogody dla miasta: {city}"
     except Exception as e:
-        return f"Error while fetching weather data: {e}"
+        return f"Błąd pobierania pogody: {str(e)}"
 
+def generate_response(user_input: str) -> str:
+    # Wykrywanie zapytań o pogodę
+    weather_match = re.search(r"(pogoda w|weather in) (.+)", user_input, re.IGNORECASE)
+    if weather_match:
+        city = weather_match.group(2).strip()
+        return get_weather(city)
 
-def chatbot_response(message):
-    """
-    Generowanie odpowiedzi z OpenAI ChatGPT oraz obsługa pogody i specjalnych przycisków.
-    """
+    # Obsługa specjalnych komend
+    COMMAND_PROMPTS = {
+        "żart": "Opowiedz krótki, zabawny dowcip po polsku",
+        "historyczną": "Podaj ciekawostkę historyczną po polsku",
+        "technologiczną": "Opowiedz ciekawostkę technologiczną po polsku"
+    }
+    
+    for keyword, prompt in COMMAND_PROMPTS.items():
+        if keyword in user_input.lower():
+            try:
+                response = openai.ChatCompletion.create(
+                    model="gpt-3.5-turbo",
+                    messages=[
+                        {"role": "system", "content": prompt},
+                        {"role": "user", "content": user_input}
+                    ]
+                )
+                return response.choices[0].message['content'].strip()
+            except Exception as e:
+                return f"Błąd API: {str(e)}"
+    
+    # Domyślna odpowiedź GPT
     try:
-        # Rozpoznanie języka wiadomości
-        language = detect(message)
-
-        # Obsługa specjalnych poleceń
-        if message.lower() == "Opowiedz żart":
-            system_message = "You are a helpful assistant. Tell a random funny joke."
-        elif message.lower() == "opowiedz mi ciekawostkę historyczną":
-            system_message = "You are a knowledgeable assistant. Share an interesting historical fact."
-        elif message.lower() == "opowiedz mi ciekawostkę dla Geeków":
-            system_message = "You are a technical expert. Provide an interesting technical fact."
-        elif "weather in" in message.lower() or "pogoda w" in message.lower():
-            if "weather in" in message.lower():
-                city = message.lower().split("weather in")[-1].strip()
-            elif "pogoda w" in message.lower():
-                city = message.lower().split("pogoda w")[-1].strip()
-            else:
-                city = None
-
-            if not city:
-                if language == "pl":
-                    return "Podaj nazwę miasta, aby uzyskać informacje o pogodzie."
-                else:
-                    return "Please provide a city name to get the weather."
-
-            return get_weather(city, language)
-        else:
-            # Domyślny kontekst
-            system_message = "You are a helpful assistant."
-
-        # Wywołanie API OpenAI
         response = openai.ChatCompletion.create(
-            model="gpt-4",
+            model="gpt-3.5-turbo",
             messages=[
-                {"role": "system", "content": system_message},
-                {"role": "user", "content": message}
+                {"role": "system", "content": "Jesteś pomocnym polskojęzycznym asystentem"},
+                {"role": "user", "content": user_input}
             ]
         )
-        return response['choices'][0]['message']['content'].strip()
-
+        return response.choices[0].message['content'].strip()
     except Exception as e:
-        return f"Error during communication with the model: {e}"
-
+        return f"Błąd systemu: {str(e)}"
 
 @app.route("/")
 def index():
-    """
-    Strona główna - serwuje plik index.html.
-    """
     return render_template("index.html")
 
-
 @app.route("/get_response", methods=["POST"])
-def get_response():
-    """
-    API do obsługi wiadomości użytkownika.
-    """
-    user_message = request.json.get("message")
-    response = chatbot_response(user_message)
+def handle_message():
+    data = request.get_json()
+    user_message = data.get("message", "")
+    response = generate_response(user_message)
     return jsonify({"response": response})
 
-
 if __name__ == "__main__":
-    app.run(debug=True)
+    app.run(host="0.0.0.0", port=5000, debug=True)
