@@ -135,42 +135,73 @@ body {
 	-webkit-text-fill-color: transparent;
 }
 
-/* Chat */
-.chat-container {
+/* -------------------------------
+	 CHAT - JEDNA KOLUMNA, 
+	 QUICK-ACTIONS STICKY U GÓRY
+	 ------------------------------- */
+
+/* Główny kontener w sekcji chat */
+.chat-container-single {
 	max-width: 800px;
 	margin: 0 auto;
-}
 
-.chat-window {
-	height: 60vh;
-	border: 1px solid var(--neon-purple);
+	/* Wysokość i flex, by .chat-window mogło się rozciągać i przewijać */
+	height: 70vh;
+	display: flex;
+	flex-direction: column;
+
+	background: rgba(0, 0, 0, 0.2);
+	border: 1px solid var(--neon-blue);
 	border-radius: var(--border-radius);
-	padding: 1.5rem;
-	margin-bottom: 1rem;
-	overflow-y: auto;
-	background: rgba(0, 0, 0, 0.3);
+	position: relative; /* dla sticky elementów wewnątrz */
 }
 
+/* Przyciski szybkich akcji przyklejone do góry kontenera */
+.sticky-top {
+	position: sticky;
+	top: 0;
+	z-index: 10; /* by nie chowały się za wiadomości */
+	background: rgba(255, 255, 255, 0.05);
+	border-bottom: 1px solid var(--neon-purple);
+	padding: 1rem;
+}
+
+/* Okno wiadomości – główna część do przewijania */
+.chat-window {
+	flex: 1; /* wypełnia dostępne miejsce w pionie */
+	overflow-y: auto;
+	border-radius: var(--border-radius);
+	border: 1px solid var(--neon-purple);
+	background: rgba(0, 0, 0, 0.3);
+	padding: 1rem 1.5rem;
+	margin: 0 1rem;
+}
+
+/* Pole do wpisania wiadomości */
+.chat-input-container {
+	display: flex;
+	gap: 0.5rem;
+	padding: 1rem;
+}
+
+/* Quick actions - jeśli chcesz spersonalizować styl w sticky-top */
+.quick-actions {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 1rem;
+}
+
+/* Wiadomości */
 .user-message,
 .bot-message {
+	display: flex;
+	align-items: flex-start;
+	gap: 1rem;
 	padding: 1rem;
 	margin: 1rem 0;
 	border-radius: var(--border-radius);
 	max-width: 80%;
-	position: relative;
 	animation: messageAppear 0.3s ease;
-}
-
-.user-message {
-	background: rgba(0, 243, 255, 0.15);
-	border: 1px solid var(--neon-blue);
-	margin-left: auto;
-}
-
-.bot-message {
-	background: rgba(189, 0, 255, 0.15);
-	border: 1px solid var(--neon-purple);
-	margin-right: auto;
 }
 
 @keyframes messageAppear {
@@ -184,7 +215,37 @@ body {
 	}
 }
 
-/* Przyciski */
+/* Użytkownik */
+.user-message .message-content {
+	background: rgba(0, 243, 255, 0.15);
+	border: 1px solid var(--neon-blue);
+	border-radius: calc(var(--border-radius) - 4px);
+}
+
+.user-message {
+	justify-content: flex-end;
+}
+
+/* Bot */
+.bot-message .message-content {
+	background: rgba(189, 0, 255, 0.15);
+	border: 1px solid var(--neon-purple);
+	border-radius: calc(var(--border-radius) - 4px);
+}
+
+.message-content {
+	padding: 1rem;
+	flex-grow: 1;
+}
+
+/* Ikona w wiadomości */
+.message-icon {
+	font-size: 1.8rem;
+	color: var(--neon-blue);
+	margin-right: 0.5rem;
+}
+
+/* Przycisk, input i inne elementy */
 .neon-btn {
 	background: rgba(0, 243, 255, 0.1);
 	color: var(--neon-blue);
@@ -223,4 +284,69 @@ body {
 .neon-input:focus {
 	outline: none;
 	box-shadow: 0 0 15px rgba(189, 0, 255, 0.3);
+}
+
+/* Sekcja historii */
+.history-container {
+	max-width: 800px;
+	margin: 0 auto;
+	background: var(--glass-bg);
+	border-radius: var(--border-radius);
+	padding: 2rem;
+	border: 1px solid var(--neon-blue);
+	box-shadow: 0 0 20px rgba(0, 243, 255, 0.1);
+}
+
+.history-content {
+	margin: 1rem 0;
+}
+
+.neon-heading {
+	text-align: center;
+	margin-bottom: 1rem;
+}
+
+/* Sekcja "O nas" */
+.about-container {
+	max-width: 800px;
+	margin: 0 auto;
+	background: var(--glass-bg);
+	border-radius: var(--border-radius);
+	padding: 2rem;
+	border: 1px solid var(--neon-blue);
+	box-shadow: 0 0 20px rgba(0, 243, 255, 0.1);
+}
+
+.neon-card {
+	background: rgba(0, 0, 0, 0.3);
+	border: 1px solid var(--neon-purple);
+	border-radius: var(--border-radius);
+	padding: 2rem;
+	margin-top: 1rem;
+}
+
+.tech-stack {
+	display: flex;
+	gap: 2rem;
+	margin-top: 1rem;
+}
+
+.tech-item {
+	display: flex;
+	align-items: center;
+	gap: 0.5rem;
+}
+
+/* Responsywność */
+@media (max-width: 768px) {
+	.chat-container-single {
+		height: 60vh; /* Możesz zmniejszyć na mobile */
+	}
+	.quick-actions {
+		flex-direction: column;
+		padding-bottom: 1rem;
+	}
+	.nav-links {
+		gap: 1rem;
+	}
 }
