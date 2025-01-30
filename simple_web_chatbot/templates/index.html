@@ -4,6 +4,7 @@
 		<meta charset="UTF-8" />
 		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
 		<title>Neon Chat - AI Assistant</title>
+		<!-- Ścieżki do Twoich plików CSS i JS -->
 		<link rel="stylesheet" href="/static/css/style.css" />
 		<link
 			href="https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css"
@@ -11,6 +12,7 @@
 		/>
 		<script src="/static/js/script.js" defer></script>
 	</head>
+
 	<body>
 		<!-- Navbar -->
 		<nav class="neon-navbar">
@@ -38,12 +40,13 @@
 			</div>
 		</nav>
 
-		<!-- Sekcja Home -->
+		<!-- Sekcja HOME -->
 		<section id="home" class="tab active">
 			<div class="neon-hero">
 				<h1 class="neon-title">Witaj w NeonChat</h1>
 				<p class="neon-subtitle">Twoja nowoczesna platforma komunikacji z AI</p>
-				<button class="neon-btn" onclick="switchTab('chat')">
+				<!-- Wycentrowany przycisk: -->
+				<button class="neon-btn hero-start-btn" onclick="switchTab('chat')">
 					Rozpocznij rozmowę
 					<i class="bx bx-chevron-right"></i>
 				</button>
@@ -53,49 +56,69 @@
 		<!-- Sekcja czatu -->
 		<section id="chat" class="tab">
 			<div class="chat-container-single">
-				<!-- Przyciski predefiniowane ZAWSZE widoczne (sticky u góry) -->
-				<div class="quick-actions sticky-top">
-					<button
-						class="neon-btn preset"
-						onclick="sendPresetMessage('Opowiedz mi żart')"
-					>
-						<i class="bx bx-laugh"></i>
-						Losowy żart
-					</button>
-					<button
-						class="neon-btn preset"
-						onclick="sendPresetMessage('Opowiedz mi ciekawostkę Historyczną')"
-					>
-						<i class="bx bx-history"></i>
-						Ciekawostka historyczna
-					</button>
-					<button
-						class="neon-btn preset"
-						onclick="sendPresetMessage('Opowiedz ciekawostkę technologiczną')"
-					>
-						<i class="bx bx-chip"></i>
-						Ciekawostka technologiczna
-					</button>
-					<button class="neon-btn preset" onclick="handleWeatherRequest()">
-						<i class="bx bx-cloud"></i>
-						Sprawdź pogodę
-					</button>
-				</div>
+				<div class="chat-wrapper">
+					<!-- Okno wiadomości (przewijane) -->
+					<div id="chat-window" class="chat-window"></div>
 
-				<!-- Okno wiadomości (przewijane) -->
-				<div id="chat-window" class="chat-window"></div>
+					<!-- Pole do wpisania wiadomości -->
+					<div class="chat-input-container">
+						<input
+							type="text"
+							id="user-input"
+							placeholder="Wpisz swoją wiadomość..."
+							class="neon-input"
+						/>
+						<button onclick="sendMessage()" class="neon-btn send-btn">
+							<i class="bx bx-send"></i>
+						</button>
+					</div>
 
-				<!-- Pole do wpisania wiadomości (na dole, statyczne) -->
-				<div class="chat-input-container">
-					<input
-						type="text"
-						id="user-input"
-						placeholder="Wpisz swoją wiadomość..."
-						class="neon-input"
-					/>
-					<button onclick="sendMessage()" class="neon-btn send-btn">
-						<i class="bx bx-send"></i>
-					</button>
+					<!-- Szybkie akcje i przyciski pogody -->
+					<div class="quick-actions">
+						<!-- Pogoda w obecnej lokalizacji (geolokalizacja + endpoint /get_weather) -->
+						<button
+							class="neon-btn preset"
+							onclick="handleWeatherLocalRequest()"
+						>
+							<i class="bx bx-current-location"></i>
+							Pogoda tutaj
+						</button>
+						<!-- Pogoda w wybranym mieście (prompt + "pogoda w miasto" -> /get_response) -->
+						<button
+							class="neon-btn preset"
+							onclick="handleWeatherCityRequest()"
+						>
+							<i class="bx bx-cloud"></i>
+							Pogoda w mieście
+						</button>
+						<!-- Predefiniowane zapytania -->
+						<button
+							class="neon-btn preset"
+							onclick="sendPresetMessage('Opowiedz mi żart')"
+						>
+							<i class="bx bx-laugh"></i>
+							Losowy żart
+						</button>
+						<button
+							class="neon-btn preset"
+							onclick="sendPresetMessage('Opowiedz mi ciekawostkę historyczną')"
+						>
+							<i class="bx bx-history"></i>
+							Ciekawostka historyczna
+						</button>
+						<button
+							class="neon-btn preset"
+							onclick="sendPresetMessage('Opowiedz ciekawostkę technologiczną')"
+						>
+							<i class="bx bx-chip"></i>
+							Ciekawostka technologiczna
+						</button>
+						<!-- Wyczyść tylko okno czatu (bez usuwania historii) -->
+						<button class="neon-btn danger" onclick="clearChat()">
+							<i class="bx bx-eraser"></i>
+							Wyczyść czat
+						</button>
+					</div>
 				</div>
 			</div>
 		</section>
@@ -112,25 +135,15 @@
 			</div>
 		</section>
 
-		<!-- Sekcja O nas -->
+		<!-- Sekcja "O nas" -->
 		<section id="about" class="tab">
 			<div class="about-container">
 				<h2 class="neon-heading">O Projekcie</h2>
 				<div class="neon-card">
 					<p>
-						W wersji pierwszej był użyty lokalny model LLM Neo Gpt 1,7T, ale był
-						zbyt głupi.
+						Chatbot wykorzystujący zaawansowane algorytmy AI do generowania
+						odpowiedzi.
 					</p>
-					<p>
-						Kolejna wersja korzystała z mocniejszego ale dalej starego modelu
-						lokalnego co powodowało przeciązenia laptopa.
-					</p>
-					<p>
-						Wiec postanowilismy na webowa wersje API od Open AI, nastepnie
-						zostało przygotowane UI oraz strony poboczne i inne funkcjonalności.
-					</p>
-					<p><br /></p>
-					<p>Ta wersja korzysta, z API GPT 4 oraz ich chmury obliczeniowej.</p>
 					<div class="tech-stack">
 						<div class="tech-item">
 							<i class="bx bx-code-alt"></i>

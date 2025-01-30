@@ -10,6 +10,7 @@
 	--nav-height: 70px;
 }
 
+/* RESET / PODSTAWA */
 * {
 	margin: 0;
 	padding: 0;
@@ -25,7 +26,7 @@ body {
 	padding-top: var(--nav-height);
 }
 
-/* Navbar */
+/* NAVBAR */
 .neon-navbar {
 	display: flex;
 	justify-content: space-between;
@@ -92,7 +93,7 @@ body {
 	left: 0;
 }
 
-/* Sekcje */
+/* SEKCJE */
 .tab {
 	display: none;
 	padding: 2rem;
@@ -115,7 +116,7 @@ body {
 	}
 }
 
-/* Strona główna */
+/* STRONA GŁÓWNA (HOME) */
 .neon-hero {
 	text-align: center;
 	max-width: 800px;
@@ -135,65 +136,71 @@ body {
 	-webkit-text-fill-color: transparent;
 }
 
-/* -------------------------------
-	 CHAT - JEDNA KOLUMNA, 
-	 QUICK-ACTIONS STICKY U GÓRY
-	 ------------------------------- */
+.hero-start-btn {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	margin-top: 1rem;
+}
 
-/* Główny kontener w sekcji chat */
+/* -------------------------------
+	 SEKCJA CHAT
+	 Okno czatu z przewijaniem
+	 ------------------------------- */
 .chat-container-single {
 	max-width: 800px;
 	margin: 0 auto;
 
-	/* Wysokość i flex, by .chat-window mogło się rozciągać i przewijać */
+	/* Wymuszamy wysokość, żeby sekcja się nie rozciągała. */
 	height: 70vh;
-	display: flex;
-	flex-direction: column;
-
 	background: rgba(0, 0, 0, 0.2);
 	border: 1px solid var(--neon-blue);
 	border-radius: var(--border-radius);
-	position: relative; /* dla sticky elementów wewnątrz */
+
+	/* Flex, by .chat-window mogło się dopasować. */
+	display: flex;
+	flex-direction: column;
+	position: relative;
 }
 
-/* Przyciski szybkich akcji przyklejone do góry kontenera */
-.sticky-top {
-	position: sticky;
-	top: 0;
-	z-index: 10; /* by nie chowały się za wiadomości */
-	background: rgba(255, 255, 255, 0.05);
-	border-bottom: 1px solid var(--neon-purple);
-	padding: 1rem;
+.chat-wrapper {
+	display: flex;
+	flex-direction: column;
+	height: 100%;
+	/* Cała wysokość kontenera (70vh). */
 }
 
-/* Okno wiadomości – główna część do przewijania */
 .chat-window {
-	flex: 1; /* wypełnia dostępne miejsce w pionie */
-	overflow-y: auto;
-	border-radius: var(--border-radius);
+	/* To jest główne okno, w którym pokazują się wiadomości. */
+	flex: 1; /* wypełnia przestrzeń */
+	overflow-y: auto; /* wewnętrzny scroll */
 	border: 1px solid var(--neon-purple);
+	border-radius: var(--border-radius);
 	background: rgba(0, 0, 0, 0.3);
-	padding: 1rem 1.5rem;
-	margin: 0 1rem;
+	padding: 1.5rem;
+	margin: 1rem;
 }
 
-/* Pole do wpisania wiadomości */
 .chat-input-container {
 	display: flex;
 	gap: 0.5rem;
-	padding: 1rem;
+	padding: 0 1rem 1rem 1rem;
 }
 
-/* Quick actions - jeśli chcesz spersonalizować styl w sticky-top */
 .quick-actions {
 	display: flex;
 	flex-wrap: wrap;
 	gap: 1rem;
+	padding: 0 1rem 1rem 1rem;
+	margin-top: auto; /* przesuwa je w dół, jeśli chcesz */
+	border-top: 1px solid var(--neon-purple);
+	background: rgba(0, 0, 0, 0.2);
 }
 
-/* Wiadomości */
+/* WIADOMOŚCI */
 .user-message,
-.bot-message {
+.bot-message,
+.error-message {
 	display: flex;
 	align-items: flex-start;
 	gap: 1rem;
@@ -221,7 +228,6 @@ body {
 	border: 1px solid var(--neon-blue);
 	border-radius: calc(var(--border-radius) - 4px);
 }
-
 .user-message {
 	justify-content: flex-end;
 }
@@ -233,9 +239,17 @@ body {
 	border-radius: calc(var(--border-radius) - 4px);
 }
 
+/* Błędy (jeśli coś poszło nie tak) */
+.error-message .message-content {
+	background: rgba(255, 0, 0, 0.2);
+	border: 1px solid red;
+	border-radius: calc(var(--border-radius) - 4px);
+}
+
 .message-content {
 	padding: 1rem;
 	flex-grow: 1;
+	color: var(--text-primary);
 }
 
 /* Ikona w wiadomości */
@@ -245,7 +259,7 @@ body {
 	margin-right: 0.5rem;
 }
 
-/* Przycisk, input i inne elementy */
+/* PRZYCISKI */
 .neon-btn {
 	background: rgba(0, 243, 255, 0.1);
 	color: var(--neon-blue);
@@ -270,7 +284,7 @@ body {
 	background: rgba(255, 0, 255, 0.1);
 }
 
-/* Input */
+/* INPUT */
 .neon-input {
 	width: 100%;
 	padding: 1rem;
@@ -286,7 +300,7 @@ body {
 	box-shadow: 0 0 15px rgba(189, 0, 255, 0.3);
 }
 
-/* Sekcja historii */
+/* SEKCJA HISTORII */
 .history-container {
 	max-width: 800px;
 	margin: 0 auto;
@@ -306,7 +320,7 @@ body {
 	margin-bottom: 1rem;
 }
 
-/* Sekcja "O nas" */
+/* SEKCJA O NAS */
 .about-container {
 	max-width: 800px;
 	margin: 0 auto;
@@ -337,14 +351,13 @@ body {
 	gap: 0.5rem;
 }
 
-/* Responsywność */
+/* RESPONSYWNOŚĆ */
 @media (max-width: 768px) {
 	.chat-container-single {
 		height: 60vh; /* Możesz zmniejszyć na mobile */
 	}
 	.quick-actions {
 		flex-direction: column;
-		padding-bottom: 1rem;
 	}
 	.nav-links {
 		gap: 1rem;
