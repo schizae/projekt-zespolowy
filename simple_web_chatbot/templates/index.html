@@ -4,12 +4,14 @@
 		<meta charset="UTF-8" />
 		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
 		<title>Neon Chat - AI Assistant</title>
-		<!-- Ścieżki do Twoich plików CSS i JS -->
+		<!-- Łączenie z plikiem CSS -->
 		<link rel="stylesheet" href="/static/css/style.css" />
+		<!-- Ikony boxicons -->
 		<link
 			href="https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css"
 			rel="stylesheet"
 		/>
+		<!-- Główny skrypt JS -->
 		<script src="/static/js/script.js" defer></script>
 	</head>
 
@@ -37,6 +39,11 @@
 					<i class="bx bx-info-circle"></i>
 					<span>O nas</span>
 				</a>
+				<!-- Przełącznik trybu Light/Dark -->
+				<button class="neon-btn" onclick="toggleTheme()">
+					<i class="bx bx-sun"></i>
+					Przełącz tryb
+				</button>
 			</div>
 		</nav>
 
@@ -45,7 +52,7 @@
 			<div class="neon-hero">
 				<h1 class="neon-title">Witaj w NeonChat</h1>
 				<p class="neon-subtitle">Twoja nowoczesna platforma komunikacji z AI</p>
-				<!-- Wycentrowany przycisk: -->
+				<!-- Przycisk Rozpocznij rozmowę (wycentrowany) -->
 				<button class="neon-btn hero-start-btn" onclick="switchTab('chat')">
 					Rozpocznij rozmowę
 					<i class="bx bx-chevron-right"></i>
@@ -75,7 +82,7 @@
 
 					<!-- Szybkie akcje i przyciski pogody -->
 					<div class="quick-actions">
-						<!-- Pogoda w obecnej lokalizacji (geolokalizacja + endpoint /get_weather) -->
+						<!-- Pogoda w obecnej lokalizacji -->
 						<button
 							class="neon-btn preset"
 							onclick="handleWeatherLocalRequest()"
@@ -83,7 +90,7 @@
 							<i class="bx bx-current-location"></i>
 							Pogoda tutaj
 						</button>
-						<!-- Pogoda w wybranym mieście (prompt + "pogoda w miasto" -> /get_response) -->
+						<!-- Pogoda w wybranym mieście -->
 						<button
 							class="neon-btn preset"
 							onclick="handleWeatherCityRequest()"
@@ -91,7 +98,7 @@
 							<i class="bx bx-cloud"></i>
 							Pogoda w mieście
 						</button>
-						<!-- Predefiniowane zapytania -->
+						<!-- Predefiniowane zapytania (GPT) -->
 						<button
 							class="neon-btn preset"
 							onclick="sendPresetMessage('Opowiedz mi żart')"
@@ -141,9 +148,45 @@
 				<h2 class="neon-heading">O Projekcie</h2>
 				<div class="neon-card">
 					<p>
-						Chatbot wykorzystujący zaawansowane algorytmy AI do generowania
-						odpowiedzi.
+						Ten oto chatbot powstał w celu zaliczenia przedmiotu Projekt
+						zespołowy<br /><br />
 					</p>
+					<p>Przez studentów z 3 N122L-IS, <br /><br /></p>
+					<p>
+						Norbert Chojnacki Numer albumu:36087 mam skromną nadzieję na 5 :D
+						<br /><br />
+					</p>
+					<p>
+						Oraz Mariusz Górki i Aleksandr Novozhilov, był jeszcze Tomasz
+						Dopierała, ale nie można było nawiązać kontaktu z kolegą.
+						<br /><br />
+					</p>
+					<p>
+						Chatbot wykorzystujący zaawansowane algorytmy AI do generowania
+						odpowiedzi, bazując na modelu Opein AI GPT 4, oraz z API
+						OpenWeatherMap<br /><br />
+					</p>
+
+					<p>
+						Początkowo był na modelu lokalnym EleutherAI GPT 1,7B, Nastepnie
+						EleutherAI GPT 2,7B<br /><br />
+					</p>
+					<p>
+						Lecz te modele były stare, cięzko się z nimi wpółpracowało, dodatkow
+						strasznie obciązały CPU<br /><br />
+					</p>
+					<p>
+						Miałem w planach jeszcze zrobić proste logowanie i zakładnie konta,
+						wykorzystując Django oraz podpięcie bazy danych zapisującej rozmowy
+						z czatem, poszczególnych użytkowników<br /><br />
+					</p>
+
+					<p>Ale niestety zabrakło mi czasu i mocy przerobowej<br /><br /></p>
+					<p>
+						Dziekuje za przeczytanie tych głupot tak chciałem mniej wiecej
+						opowiedzieć coś o tym projekcie<br /><br />
+					</p>
+
 					<div class="tech-stack">
 						<div class="tech-item">
 							<i class="bx bx-code-alt"></i>

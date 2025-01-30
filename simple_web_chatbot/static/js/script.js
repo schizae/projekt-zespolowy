@@ -24,18 +24,24 @@ function switchTab(tabId) {
 	if (tabId === 'history') showHistory();
 }
 
-// Historia rozmów przechowywana lokalnie
+// Historia rozmów w localStorage
 let messageHistory = JSON.parse(localStorage.getItem('messageHistory')) || [];
 
+/* ------------------------
+	 Funkcja przełączania trybu (Dark/Light)
+	 ------------------------ */
+function toggleTheme() {
+	document.body.classList.toggle('light-mode');
+}
+
 /**
- * Dodaje nowy komunikat do okna czatu oraz zapisuje go w localStorage.
- * @param {string} message - treść wiadomości
- * @param {string} type - 'user' | 'bot' | 'error'
+ * Dodaje nowy komunikat do okna czatu + zapis w localStorage.
+ * Dodana klasa .message-anim dla animacji "popIn".
  */
 function appendMessage(message, type) {
 	const chatWindow = document.getElementById('chat-window');
 
-	// Ikona obok wiadomości
+	// Ikona zależna od typu
 	let iconHTML = '';
 	if (type === 'bot') {
 		iconHTML = '<div class="message-icon"><i class="bx bxs-bot"></i></div>';
@@ -45,8 +51,9 @@ function appendMessage(message, type) {
 		iconHTML = '<div class="message-icon"><i class="bx bxs-error"></i></div>';
 	}
 
+	// Dodajemy ".message-anim" by włączyć animację
 	const messageDiv = document.createElement('div');
-	messageDiv.className = `${type}-message`;
+	messageDiv.className = `${type}-message message-anim`;
 	messageDiv.innerHTML = `
 	  ${iconHTML}
 	  <div class="message-content">
@@ -63,22 +70,29 @@ function appendMessage(message, type) {
 		behavior: 'smooth',
 	});
 
-	// Zapisz w localStorage (jeśli nie jest typem 'error')
+	// Zapisywanie w localStorage (tylko user/bot)
 	if (type === 'user' || type === 'bot') {
 		messageHistory.push({ content: message, type });
 		localStorage.setItem('messageHistory', JSON.stringify(messageHistory));
 	}
+
+	// (Opcjonalnie) usuwanie klasy po animacji
+	setTimeout(() => {
+		messageDiv.classList.remove('message-anim');
+	}, 300);
 }
 
+/* ------------------------
+	 Funkcje do obsługi GPT (/get_response)
+	 ------------------------ */
 /**
- * Wysyła wiadomość do /get_response (rozmowa z GPT)
+ * Wysyła wiadomość do /get_response (rozmowa z GPT).
  */
 async function sendMessage() {
 	const userInput = document.getElementById('user-input');
 
 	if (userInput.value.trim()) {
 		const message = userInput.value.trim();
-
 		appendMessage(message, 'user');
 
 		try {
@@ -91,8 +105,8 @@ async function sendMessage() {
 
 			const data = await response.json();
 			appendMessage(data.response, 'bot');
-		} catch (err) {
-			appendMessage(`Błąd połączenia: ${err.message}`, 'error');
+		} catch (error) {
+			appendMessage(`Błąd połączenia: ${error.message}`, 'error');
 		}
 
 		userInput.value = '';
@@ -100,19 +114,20 @@ async function sendMessage() {
 }
 
 /**
- * Predefiniowana wiadomość (np. "Opowiedz mi żart"),
- * wysyłana automatycznie do GPT.
+ * Wstawia wiadomość do inputa i od razu wysyła do GPT
+ * (np. "Opowiedz mi żart").
  */
 function sendPresetMessage(message) {
 	const input = document.getElementById('user-input');
 	input.value = message;
-	sendMessage(); // automatyczne wysłanie
+	sendMessage();
 }
 
-/* ---------- Pogoda ---------- */
-
+/* ------------------------
+	 Pogoda (/get_weather)
+	 ------------------------ */
 /**
- * Pogoda w obecnej lokalizacji => POST /get_weather { lat, lon }
+ * Pogoda w obecnej lokalizacji
  */
 async function handleWeatherLocalRequest() {
 	appendMessage('Proszę o pogodę w mojej lokalizacji...', 'user');
@@ -140,8 +155,8 @@ async function handleWeatherLocalRequest() {
 
 				const data = await response.json();
 				appendMessage(data.response, 'bot');
-			} catch (error) {
-				appendMessage(`Błąd: ${error.message}`, 'error');
+			} catch (err) {
+				appendMessage(`Błąd: ${err.message}`, 'error');
 			}
 		},
 		(err) => {
@@ -152,7 +167,7 @@ async function handleWeatherLocalRequest() {
 }
 
 /**
- * Pogoda w wybranym mieście => POST /get_weather { message: "Pogoda w X" }
+ * Pogoda w wybranym mieście
  */
 async function handleWeatherCityRequest() {
 	const city = prompt(
@@ -178,16 +193,15 @@ async function handleWeatherCityRequest() {
 	}
 }
 
-/* ---------- Czat - czyszczenie i historia ---------- */
-
-// Wyczyść historię (z localStorage)
+/* ------------------------
+	 Historia i czyszczenie
+	 ------------------------ */
 function clearHistory() {
 	messageHistory = [];
 	localStorage.removeItem('messageHistory');
 	showHistory();
 }
 
-// Wyczyść aktualne okno czatu (bez usuwania historii!)
 function clearChat() {
 	if (
 		confirm(
@@ -198,7 +212,6 @@ function clearChat() {
 	}
 }
 
-// Pokazanie historii w zakładce "Historia"
 function showHistory() {
 	const historyContent = document.getElementById('history-content');
 	if (!historyContent) return;
@@ -216,7 +229,9 @@ function showHistory() {
 		.join('');
 }
 
-/* ---------- Inicjalizacja ---------- */
+/* ------------------------
+	 Inicjalizacja DOM
+	 ------------------------ */
 document.addEventListener('DOMContentLoaded', () => {
 	// Obsługa domyślnej zakładki
 	const hash = window.location.hash.substring(1);
@@ -234,7 +249,7 @@ document.addEventListener('DOMContentLoaded', () => {
 		});
 	}
 
-	// Obsługa przycisku Enter w polu tekstowym
+	// Enter w polu tekstowym => wyślij wiadomość
 	document.getElementById('user-input').addEventListener('keypress', (e) => {
 		if (e.key === 'Enter') sendMessage();
 	});
